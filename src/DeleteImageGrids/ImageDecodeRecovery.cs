@@ -25,7 +25,7 @@ internal static class ImageDecodeRecovery
             using var process = Process.Start(info) ?? throw new InvalidOperationException("FFmpeg could not start.");
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
             timeout.CancelAfter(TimeSpan.FromSeconds(30));
-            var errors = process.StandardError.ReadToEndAsync(timeout.Token);
+            var errors = ReadErrorsAsync(process.StandardError, timeout.Token);
             try
             {
                 await process.WaitForExitAsync(timeout.Token);
@@ -44,5 +44,40 @@ internal static class ImageDecodeRecovery
             }
         }
         finally { Directory.Delete(directory, recursive: true); }
+    }
+
+    // Drain stderr completely to avoid blocking FFmpeg, retaining only a bounded
+    // diagnostic. Damaged PNGs can otherwise generate hundreds of thousands of lines.
+    private static async Task<string> ReadErrorsAsync(StreamReader reader, CancellationToken ct)
+    {
+        var result = new System.Text.StringBuilder();
+        var buffer = new char[4096];
+        int count;
+        while ((count = await reader.ReadAsync(buffer.AsMemory(), ct)) > 0)
+        {
+            var keep = Math.Min(count, 4096 - result.Length);
+            if (keep > 0) result.Append(buffer, 0, keep);
+        }
+        return result.ToString();
+    }
+
+    internal static string Brief(Exception error)
+    {
+        var message = error.Message.Replace('\r', ' ').Replace('\n', ' ');
+        return message.Length > 512 ? message[..512] + "…" : message;
+    }
+
+    internal static async Task<string> DescribeSourceAsync(Stream source, CancellationToken ct)
+    {
+        if (!source.CanSeek) return "Source header unavailable.";
+        var position = source.Position;
+        try
+        {
+            source.Position = 0;
+            var header = new byte[16];
+            var count = await source.ReadAsync(header, ct);
+            return $"Source length: {source.Length} bytes; first {count} bytes: {Convert.ToHexString(header.AsSpan(0, count))}.";
+        }
+        finally { source.Position = position; }
     }
 }

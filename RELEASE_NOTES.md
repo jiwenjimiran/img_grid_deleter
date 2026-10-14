@@ -1,4 +1,11 @@
-# Delete Image Grids 0.2.25
+# Delete Image Grids 0.2.26
+
+Failed source decodes now include source size and header bytes plus separate
+ImageSharp, FFmpeg, and thumbnail failure summaries. FFmpeg stderr is drained
+with bounded retention so malformed PNGs cannot flood Cove's logs. Completion
+progress identifies skipped source images separately from metadata errors.
+This release retains the SQLite update-lock fix from 0.2.25. It does not restore
+missing image bytes or classify partial images as if they were complete.
 
 Disabled SQLite connection pooling so completed and cancelled jobs release the
 results database file handle. Idle page reads also release their connections.

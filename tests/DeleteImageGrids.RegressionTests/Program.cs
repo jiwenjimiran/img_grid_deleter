@@ -196,6 +196,12 @@ if (File.Exists(modelPath))
     try { using var invalidImage = await ImageDecodeRecovery.DecodeAsync(invalidStream, null, CancellationToken.None); }
     catch (InvalidDataException) { invalidRejected = true; }
     Check(invalidRejected, "unrecoverable input remains a failure rather than a classification");
+    invalidStream.Position = 2;
+    var diagnostic = await ImageDecodeRecovery.DescribeSourceAsync(invalidStream, CancellationToken.None);
+    Check(diagnostic.Contains("4 bytes") && diagnostic.Contains("01020304") && invalidStream.Position == 2,
+        "failed source diagnostics report actual header and preserve stream position");
+    Check(ImageDecodeRecovery.Brief(new InvalidDataException(new string('x', 10000))).Length <= 513,
+        "recovery log summaries remain bounded for malformed input");
 
     var letterboxDirectory = Path.Combine(Path.GetTempPath(), $"igd-letterbox-{Guid.NewGuid():N}");
     Directory.CreateDirectory(letterboxDirectory);

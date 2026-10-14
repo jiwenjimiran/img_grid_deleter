@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.26
+
+- Preserve source size/header and all decoder failure reasons when thumbnail recovery fails.
+- Bound and drain FFmpeg diagnostics to prevent malformed PNGs from flooding logs.
+- Report skipped source images in completion progress instead of mislabelling them as metadata publication failures.
+
 ## 0.2.25
 
 - Disable SQLite connection pooling so idle result stores release the database file lock after jobs finish or cancel, allowing extension replacement.

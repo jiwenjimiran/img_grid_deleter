@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.25",
-      "changelog": "Release SQLite file handles after cancellation and idle reads so extension updates can replace the results database.",
+      "version": "0.2.26",
+      "changelog": "Preserve all decoder failure reasons and source headers, bound FFmpeg error logs, and correctly report skipped sources. Includes the SQLite update-lock fix.",
       "minCoveVersion": "1.5.2-dev.167-segments.1",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.25/io.github.jiwenjimiran.delete-image-grids-0.2.25.zip"
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.26/io.github.jiwenjimiran.delete-image-grids-0.2.26.zip"
     }
   ]
 }

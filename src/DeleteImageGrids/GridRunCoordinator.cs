@@ -175,12 +175,23 @@ public sealed class GridRunCoordinator(
                             catch (OperationCanceledException) { throw; }
                             catch (Exception recoveryError)
                             {
-                                logger.LogInformation(recoveryError,
-                                    "[Delete Image Grids] Direct FFmpeg recovery failed for image {ImageId}; trying Cove thumbnail", imageId);
-                                await using var thumbnail = await CoveHostImageServices.OpenThumbnailAsync(scope.ServiceProvider, imageId, ct);
-                                if (thumbnail is null)
-                                    throw new InvalidDataException($"{decodeError.Message} Recovery: {recoveryError.Message}", recoveryError);
-                                confidence = await classifier.ClassifyGridConfidenceAsync(thumbnail, ct);
+                                logger.LogInformation(
+                                    "[Delete Image Grids] Direct FFmpeg recovery failed for image {ImageId}: {Reason}; trying Cove thumbnail",
+                                    imageId, ImageDecodeRecovery.Brief(recoveryError));
+                                try
+                                {
+                                    await using var thumbnail = await CoveHostImageServices.OpenThumbnailAsync(scope.ServiceProvider, imageId, ct);
+                                    if (thumbnail is null) throw new InvalidDataException("No Cove thumbnail is available.");
+                                    confidence = await classifier.ClassifyGridConfidenceAsync(thumbnail, ct);
+                                }
+                                catch (OperationCanceledException) { throw; }
+                                catch (Exception thumbnailError)
+                                {
+                                    var diagnostic = await ImageDecodeRecovery.DescribeSourceAsync(source, ct);
+                                    throw new InvalidDataException(
+                                        $"Source could not be decoded. {diagnostic} ImageSharp: {ImageDecodeRecovery.Brief(decodeError)} " +
+                                        $"FFmpeg: {ImageDecodeRecovery.Brief(recoveryError)} Thumbnail: {ImageDecodeRecovery.Brief(thumbnailError)}");
+                                }
                             }
                             logger.LogInformation(
                                 "[Delete Image Grids] Recovered image {ImageId} in run {RunId} through fallback decoding. Source: {ImagePath}",
@@ -215,7 +226,10 @@ public sealed class GridRunCoordinator(
             if (metadataEnabled && metadataBatch.Count > 0)
                 await FlushMetadataAsync(db, run, metadataBatch, ct, error => metadataError ??= error);
             await store.CompleteAsync(run.Id, "completed", metadataError, ct);
-            progress.Report(1, metadataError is null ? "Classification complete." : "Classification complete; some Cove metadata could not be published.");
+            var completed = await store.GetRunAsync(run.Id, ct) ?? run;
+            progress.Report(1, completed.SkippedCount > 0
+                ? $"Classification complete; {completed.SkippedCount:N0} source images could not be read. See Cove logs for file diagnostics."
+                : metadataError is null ? "Classification complete." : "Classification complete; some Cove metadata could not be published.");
         }
         catch (OperationCanceledException)
         {
