@@ -1,4 +1,10 @@
-# Delete Image Grids 0.2.24
+# Delete Image Grids 0.2.25
+
+Disabled SQLite connection pooling so completed and cancelled jobs release the
+results database file handle. Idle page reads also release their connections.
+This fixes the classification-results.sqlite3 lock blocking extension updates.
+Fully exit and restart Cove before upgrading from an older version to release
+its existing pooled handles, then install this version before starting a run.
 
 PNG checksum failures now retry with tolerant PNG decoding. Unsupported JPEG
 and other image sources retry directly through FFmpeg before Cove thumbnails,

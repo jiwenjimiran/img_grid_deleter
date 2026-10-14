@@ -75,6 +75,15 @@ try
     var retained = await store.ListRunsAsync(CancellationToken.None);
     Check(retained.Count == 2 && retained[0].RunId == thirdRun.Id && retained[1].RunId == secondRun.Id,
         "result retention keeps the current and previous completed runs");
+    // Keep the store alive: disposing it previously cleared pools and hid this lock.
+    var databasePath = Path.Combine(resultStoreFolder, "classification-results.sqlite3");
+    using (var exclusive = new FileStream(databasePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        Check(exclusive.Length > 0, "idle result store releases the database handle after cancellation and reads");
+    var movedDatabase = databasePath + ".replacement-check";
+    File.Move(databasePath, movedDatabase);
+    File.Move(movedDatabase, databasePath);
+    Check((await store.GetRunAsync(thirdRun.Id, CancellationToken.None))?.Status == "completed",
+        "store reopens database after an extension replacement file operation");
 }
 finally { Directory.Delete(resultStoreFolder, true); }
 

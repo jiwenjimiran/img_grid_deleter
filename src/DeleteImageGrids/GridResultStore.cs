@@ -17,7 +17,9 @@ public sealed class GridResultStore : IDisposable
             DataSource = Path.Combine(extensionRoot, "classification-results.sqlite3"),
             Mode = SqliteOpenMode.ReadWriteCreate,
             Cache = SqliteCacheMode.Shared,
-            Pooling = true,
+            // Pooled native connections retain Windows file locks after jobs finish.
+            // Each operation must release its handle so Cove can replace the package.
+            Pooling = false,
         };
         _connectionString = builder.ToString();
         Initialize();
@@ -408,8 +410,16 @@ public sealed class GridResultStore : IDisposable
     private async Task<SqliteConnection> OpenAsync(CancellationToken ct)
     {
         var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync(ct);
-        return connection;
+        try
+        {
+            await connection.OpenAsync(ct);
+            return connection;
+        }
+        catch
+        {
+            await connection.DisposeAsync();
+            throw;
+        }
     }
 
     private void Initialize()
@@ -540,7 +550,7 @@ public sealed class GridResultStore : IDisposable
         await command.ExecuteNonQueryAsync(ct);
     }
 
-    public void Dispose() => SqliteConnection.ClearAllPools();
+    public void Dispose() { } // Connections are owned and closed by each operation.
 }
 
 public sealed record GridRunRecord(

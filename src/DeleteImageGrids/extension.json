@@ -1,7 +1,7 @@
 {
   "id": "io.github.jiwenjimiran.delete-image-grids",
   "name": "Delete Image Grids",
-  "version": "0.2.24",
+  "version": "0.2.25",
   "description": "Classify image grids with a bundled vision model, review them, and safely delete them from Cove.",
   "author": "jiwenji",
   "categories": [

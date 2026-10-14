@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.25
+
+- Disable SQLite connection pooling so idle result stores release the database file lock after jobs finish or cancel, allowing extension replacement.
+- Dispose failed database opens without clearing unrelated SQLite pools.
+
 ## 0.2.24
 
 - Retry PNG checksum failures with tolerant PNG decoding.
