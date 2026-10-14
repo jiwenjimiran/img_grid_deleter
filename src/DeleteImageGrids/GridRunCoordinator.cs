@@ -4,13 +4,15 @@ using Cove.Data;
 using Cove.Plugins;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Cove.DeleteImageGrids;
 
 public sealed class GridRunCoordinator(
     ImageGridClassifier classifier,
     GridResultStore store,
-    IExtensionServiceScopeFactory scopeFactory)
+    IExtensionServiceScopeFactory scopeFactory,
+    ILogger<GridRunCoordinator> logger)
 {
     internal const int CandidateBatchSize = 128;
     internal const int MetadataBatchSize = 32;
@@ -171,6 +173,9 @@ public sealed class GridRunCoordinator(
                     catch (OperationCanceledException) { throw; }
                     catch (Exception ex)
                     {
+                        logger.LogWarning(ex,
+                            "[Delete Image Grids] Skipped image {ImageId} in run {RunId}. Source: {ImagePath}. Reason: {Reason}",
+                            imageId, run.Id, included.FirstOrDefault()?.Path ?? all.FirstOrDefault()?.Path ?? "<no image file>", ex.Message);
                         await store.MarkSkippedAsync(run.Id, imageId, ct);
                         metadataError ??= $"Image {imageId} was skipped: {ex.Message}";
                     }

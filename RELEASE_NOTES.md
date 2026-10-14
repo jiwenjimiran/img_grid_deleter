@@ -1,4 +1,8 @@
-# Delete Image Grids 0.2.21
+# Delete Image Grids 0.2.22
+
+Every skipped image now produces a warning in Cove's logs with its image ID,
+run ID, source path, reason, and full exception. Cancellation is not logged as
+an image failure.
 
 Classify likely image grids with a bundled model, review results, and delete
 selected images through Cove. Include and Exclude folder scopes protect files

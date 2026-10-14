@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.22
+
+- Log a warning for every skipped image with image ID, run ID, source path, reason, and full exception details in Cove's logs.
+
 ## 0.2.21
 
 - Retrieve candidate IDs directly from Cove image records, using stored tag arrays to exclude classified images before pagination.

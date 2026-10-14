@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.21",
-      "changelog": "Query image records directly and exclude classified images before pagination using Cove tag arrays; remove file deduplication and per-page tag queries.",
+      "version": "0.2.22",
+      "changelog": "Log every skipped image with its ID, run ID, source path, reason, and full exception details.",
       "minCoveVersion": "1.5.2-dev.167-segments.1",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.21/io.github.jiwenjimiran.delete-image-grids-0.2.21.zip"
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.22/io.github.jiwenjimiran.delete-image-grids-0.2.22.zip"
     }
   ]
 }
