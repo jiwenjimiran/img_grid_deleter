@@ -158,7 +158,21 @@ public sealed class GridRunCoordinator(
                         var representative = included.First();
                         await using var source = await CoveImageSource.OpenAsync(db, representative, ct)
                             ?? throw new FileNotFoundException("Image source is unavailable.", representative.Path);
-                        var confidence = await classifier.ClassifyGridConfidenceAsync(source, ct);
+                        float confidence;
+                        try
+                        {
+                            confidence = await classifier.ClassifyGridConfidenceAsync(source, ct);
+                        }
+                        catch (Exception decodeError) when (decodeError is SixLabors.ImageSharp.UnknownImageFormatException
+                            or SixLabors.ImageSharp.InvalidImageContentException)
+                        {
+                            await using var recovered = await CoveHostImageServices.OpenThumbnailAsync(scope.ServiceProvider, imageId, ct);
+                            if (recovered is null) throw;
+                            confidence = await classifier.ClassifyGridConfidenceAsync(recovered, ct);
+                            logger.LogInformation(
+                                "[Delete Image Grids] Recovered image {ImageId} in run {RunId} through Cove's thumbnail decoder. Source: {ImagePath}",
+                                imageId, run.Id, representative.Path);
+                        }
                         var match = new GridMatch(imageId, representative.Path, confidence, confidence >= .5f,
                             included.Select(ToFileInfo).ToList(), all.Count - included.Count,
                             representative.ZipFileId.HasValue || IsArchivePath(representative.Path));

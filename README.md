@@ -14,7 +14,7 @@ the extension's **Image Grid Deleter: Grid** or **Image Grid Deleter: Not grid**
 tag, avoiding repeated model inference. Remove either tag from an image if it
 needs to be classified again.
 
-Version 0.2.22 supports Cove 1.5.2-dev.167-segments.1 and newer, including stable
+Version 0.2.23 supports Cove 1.5.2-dev.167-segments.1 and newer, including stable
 1.5.2. The minimum explicitly includes the development build used for compilation.
 
 Classification starts after the first candidate batch without counting the full

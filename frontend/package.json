@@ -1,7 +1,7 @@
 {
   "name": "cove-delete-image-grids-ui",
   "private": true,
-  "version": "0.2.22",
+  "version": "0.2.23",
   "type": "module",
   "scripts": {
     "build": "npm test && node build.mjs",

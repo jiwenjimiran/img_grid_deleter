@@ -1,4 +1,9 @@
-# Delete Image Grids 0.2.22
+# Delete Image Grids 0.2.23
+
+When ImageSharp rejects an unsupported or damaged image, classification now
+retries through Cove's thumbnail pipeline, including its FFmpeg recovery path.
+Successful recovery is logged; unrecoverable files still log detailed warnings.
+Original files are not modified.
 
 Every skipped image now produces a warning in Cove's logs with its image ID,
 run ID, source path, reason, and full exception. Cancellation is not logged as

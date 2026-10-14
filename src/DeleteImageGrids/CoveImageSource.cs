@@ -64,6 +64,23 @@ internal static class CoveImageSource
 
 internal static class CoveHostImageServices
 {
+    public static async Task<Stream?> OpenThumbnailAsync(IServiceProvider services, int imageId, CancellationToken ct)
+    {
+        var serviceType = AppDomain.CurrentDomain.GetAssemblies()
+            .Select(assembly => assembly.GetType("Cove.Api.Services.IThumbnailService", throwOnError: false))
+            .FirstOrDefault(type => type is not null);
+        if (serviceType is null) return null;
+        var service = services.GetService(serviceType);
+        var method = serviceType.GetMethod("GetImageThumbnailStreamAsync", BindingFlags.Public | BindingFlags.Instance);
+        if (service is null || method is null) return null;
+        // Cove's thumbnail pipeline can recover files through FFmpeg when ImageSharp
+        // cannot decode them. Keep this host dependency optional across Cove builds.
+        if (method.Invoke(service, [imageId, 640, ct]) is not Task task) return null;
+        await task;
+        var result = task.GetType().GetProperty("Result")?.GetValue(task);
+        return result is System.Runtime.CompilerServices.ITuple tuple ? tuple[0] as Stream : null;
+    }
+
     public static async Task DeleteGeneratedAsync(IServiceProvider services, int imageId, CancellationToken ct)
     {
         var serviceType = AppDomain.CurrentDomain.GetAssemblies()

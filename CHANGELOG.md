@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.23
+
+- Retry unsupported or damaged image decodes through Cove's thumbnail pipeline, which supports FFmpeg recovery, before skipping classification.
+- Log successful recovery and retain detailed skip warnings when recovery also fails. Original files remain untouched.
+
 ## 0.2.22
 
 - Log a warning for every skipped image with image ID, run ID, source path, reason, and full exception details in Cove's logs.
