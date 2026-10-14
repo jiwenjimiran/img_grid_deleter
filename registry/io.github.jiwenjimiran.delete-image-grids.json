@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.19",
-      "changelog": "Allow the Cove 1.5.2 development build used for compilation; batch classification-tag checks to avoid startup query timeouts.",
+      "version": "0.2.20",
+      "changelog": "Start classification after the first candidate batch and show live counts without a preliminary library counting pass; preserve resume with unknown totals.",
       "minCoveVersion": "1.5.2-dev.167-segments.1",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.19/io.github.jiwenjimiran.delete-image-grids-0.2.19.zip"
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.20/io.github.jiwenjimiran.delete-image-grids-0.2.20.zip"
     }
   ]
 }

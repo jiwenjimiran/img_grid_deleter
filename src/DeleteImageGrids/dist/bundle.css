@@ -201,6 +201,23 @@
   background: #3b82f6;
   transition: width .25s;
 }
+.igd-progress-indeterminate span {
+  width: 30%;
+  animation: igd-progress-slide 1.5s linear infinite;
+}
+@keyframes igd-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(334%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .igd-progress-indeterminate span {
+    animation: none;
+  }
+}
 .igd-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));

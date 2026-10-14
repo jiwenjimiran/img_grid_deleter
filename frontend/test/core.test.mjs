@@ -1,5 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { classificationProgressText } from "../src/core.js";
+
+test("streaming classification reports counts without implying a known total", () => {
+  assert.equal(classificationProgressText(null, true), "Starting classification…");
+  assert.equal(classificationProgressText({ status: "queued" }), "Classification queued…");
+  assert.equal(classificationProgressText({ status: "running", candidateCount: -1 }),
+    "Classifying… 0 images processed; 0 grids found; 0 skipped");
+  assert.equal(classificationProgressText({ status: "running", processedCount: 129, gridCount: 12, skippedCount: 3, candidateCount: -1 }),
+    "Classifying… 129 images processed; 12 grids found; 3 skipped");
+});
 import { chunks, createSelection, invertSelection, isSelected, normalizePath, normalizeSettings, partitionMatches, positionHoverPreview, selectPage, selectionCount, serializeSelection, togglePath, toggleSelection } from "../src/core.js";
 
 test("settings normalize modes and deduplicate paths", () => {

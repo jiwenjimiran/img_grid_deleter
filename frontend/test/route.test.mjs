@@ -133,13 +133,14 @@ test("classification excludes images already tagged as grid or not grid", async 
   assert.match(coordinator, /imageIds\.RemoveAll\(classified\.Contains\)/);
   assert.doesNotMatch(coordinator, /\.CountAsync\(|!classifiedImageIds\.Contains|IgnoreQueryFilters/);
   assert.ok(coordinator.indexOf("afterImageId = imageIds[^1]") < coordinator.indexOf("imageIds.RemoveAll"));
-  assert.match(coordinator, /candidateCount = run\.ProcessedCount \+ remainingCount/);
+  assert.equal((coordinator.match(/await foreach \(var .* in ReadCandidateBatchesAsync/g) || []).length, 1);
+  assert.doesNotMatch(coordinator, /remainingCount|Counting unclassified|SetCandidateCountAsync/);
 });
 
 test("classification displays live progress and terminal failures", async () => {
   const ui = await readFile(new URL("../src/index.jsx", import.meta.url), "utf8");
-  assert.match(ui, /Starting classification/);
-  assert.match(ui, /Classifying….*processedCount.*candidateCount/);
+  assert.match(ui, /classificationProgressText\(run, starting\)/);
+  assert.doesNotMatch(ui, /Finding candidate images|Math\.round\(progress\)/);
   assert.match(ui, /run\.modelVersion === run\.activeModelVersion/);
   assert.match(ui, /Classification failed\. Press Run to try again\./);
   assert.doesNotMatch(ui, /Classification failed: \{run\.error\}/);

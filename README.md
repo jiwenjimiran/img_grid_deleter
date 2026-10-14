@@ -14,8 +14,13 @@ the extension's **Image Grid Deleter: Grid** or **Image Grid Deleter: Not grid**
 tag, avoiding repeated model inference. Remove either tag from an image if it
 needs to be classified again.
 
-Version 0.2.19 supports Cove 1.5.2-dev.167-segments.1 and newer, including stable
+Version 0.2.20 supports Cove 1.5.2-dev.167-segments.1 and newer, including stable
 1.5.2. The minimum explicitly includes the development build used for compilation.
+
+Classification starts after the first candidate batch without counting the full
+library beforehand. The page shows live processed, grid, and skipped counts.
+There is no estimated percentage while the total is unknown; the final total
+is saved when the scan completes. Cancelled or interrupted scans remain resumable.
 
 The developer edition can also copy selected corrections back into the
 classifier dataset, retrain and evaluate a fresh 384px model, build both package

@@ -51,8 +51,27 @@ try
         "all-matching selection is bounded and honors manual exceptions");
 
     var secondRun = await store.CreateRunAsync(new GridSettings(), "model-b", CancellationToken.None);
+    await store.MarkRunningAsync(secondRun.Id, CancellationToken.None);
+    Check((await store.GetRunAsync(secondRun.Id, CancellationToken.None))?.CandidateCount == -1,
+        "streaming runs have an unknown total while running");
+    await store.CompleteAsync(secondRun.Id, "cancelled", null, CancellationToken.None);
+    Check((await store.GetRunAsync(secondRun.Id, CancellationToken.None))?.Resumable == true,
+        "unknown-total runs can resume even before processing the first image");
+    await store.MarkRunningAsync(secondRun.Id, CancellationToken.None);
+    await store.MarkSkippedAsync(secondRun.Id, 10, CancellationToken.None);
+    await store.CompleteAsync(secondRun.Id, "failed", "test failure", CancellationToken.None);
+    var partialRun = await store.GetRunAsync(secondRun.Id, CancellationToken.None);
+    Check(partialRun is { Resumable: true, ProcessedCount: 1, SkippedCount: 1, LastImageId: 10 },
+        "failed streaming runs preserve their cursor and running counts for resume");
+    await store.MarkRunningAsync(secondRun.Id, CancellationToken.None);
     await store.CompleteAsync(secondRun.Id, "completed", null, CancellationToken.None);
+    Check((await store.GetRunAsync(secondRun.Id, CancellationToken.None)) is { CandidateCount: 1, Resumable: false },
+        "completed streaming runs finalize their total including skipped images");
     var thirdRun = await store.CreateRunAsync(new GridSettings(), "model-c", CancellationToken.None);
+    await store.MarkRunningAsync(thirdRun.Id, CancellationToken.None);
+    await store.CompleteAsync(thirdRun.Id, "completed", null, CancellationToken.None);
+    Check((await store.GetRunAsync(thirdRun.Id, CancellationToken.None)) is { CandidateCount: 0, Resumable: false },
+        "empty streaming runs complete with a zero total");
     var retained = await store.ListRunsAsync(CancellationToken.None);
     Check(retained.Count == 2 && retained[0].RunId == thirdRun.Id && retained[1].RunId == secondRun.Id,
         "result retention keeps the current and previous completed runs");

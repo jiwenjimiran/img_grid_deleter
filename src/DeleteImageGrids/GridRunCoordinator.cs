@@ -119,14 +119,7 @@ public sealed class GridRunCoordinator(
                 .Select(tag => tag.Id)
                 .ToArrayAsync(ct);
             var lastImageId = run.LastImageId;
-            var remainingCount = 0;
-            await foreach (var batch in ReadCandidateBatchesAsync(db, scopedFiles, classificationTagIds, lastImageId, ct))
-            {
-                remainingCount = checked(remainingCount + batch.Count);
-                progress.Report(0, $"Counting unclassified images: {remainingCount:N0}");
-            }
-            var candidateCount = run.ProcessedCount + remainingCount;
-            await store.SetCandidateCountAsync(run.Id, candidateCount, ct);
+            progress.Report(0, $"Classifying images; {run.ProcessedCount:N0} processed so far");
             var metadataBatch = new List<GridMatch>(MetadataBatchSize);
             var metadataEnabled = run.Settings.PublishMetadata;
 
@@ -183,8 +176,8 @@ public sealed class GridRunCoordinator(
                         metadataError ??= $"Image {imageId} was skipped: {ex.Message}";
                     }
                     var current = await store.GetRunAsync(run.Id, ct) ?? run;
-                    progress.Report(candidateCount == 0 ? 1 : current.ProcessedCount / (double)candidateCount,
-                        $"Classified {current.ProcessedCount:N0}/{candidateCount:N0}; found {current.GridCount:N0} grids");
+                    progress.Report(0,
+                        $"Processed {current.ProcessedCount:N0} images; found {current.GridCount:N0} grids; skipped {current.SkippedCount:N0}");
                 }
                 db.ChangeTracker.Clear();
             }

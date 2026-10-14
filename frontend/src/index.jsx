@@ -5,7 +5,7 @@ import {
   Square, Trash2, X,
 } from "@cove/runtime/lucide-react";
 import * as api from "./api.js";
-import { basename, createSelection, DEFAULT_SETTINGS, formatConfidence, invertSelection, isSelected, normalizeSettings, PAGE_SIZE, positionHoverPreview, selectPage, selectionCount, serializeSelection, togglePath, toggleSelection } from "./core.js";
+import { basename, classificationProgressText, createSelection, DEFAULT_SETTINGS, formatConfidence, invertSelection, isSelected, normalizeSettings, PAGE_SIZE, positionHoverPreview, selectPage, selectionCount, serializeSelection, togglePath, toggleSelection } from "./core.js";
 import { deleteSelection } from "./deletion.js";
 
 const { useEffect, useMemo, useRef, useState } = React;
@@ -174,7 +174,6 @@ export function DeleteImageGridsPage() {
     && (!run.modelVersion || !run.activeModelVersion || run.modelVersion === run.activeModelVersion);
   const viewTotal = view === "grids" ? run?.gridCount : view === "non-grids" ? run?.nonGridCount : run?.classifiedCount;
   const selectedTotal = selectionCount(selection, viewTotal || 0);
-  const progress = run?.candidateCount ? Math.min(100, run.processedCount / run.candidateCount * 100) : 0;
   return <div className="igd-page">
     <header className="igd-header">
       <div><div className="igd-title"><Grid3X3 size={24} /><h1>Delete Image Grids</h1><span className="igd-version">Model {training?.activeModelVersion || run?.activeModelVersion || "loading"}</span></div><p>Classify Cove images in the selected folders, review the matches, then permanently delete them.</p></div>
@@ -186,9 +185,7 @@ export function DeleteImageGridsPage() {
     {error && <div className="igd-alert igd-error"><AlertTriangle size={17} />{error}</div>}
     {notice && <div className="igd-alert igd-success"><ShieldCheck size={17} />{notice}</div>}
     {working && <div className="igd-alert igd-working" role="status"><Loader2 className="igd-spin" size={17} />
-      {starting ? "Starting classification…" : run.candidateCount
-        ? `Classifying… ${run.processedCount || 0}/${run.candidateCount} images (${Math.round(progress)}%)`
-        : run.status === "queued" ? "Classification queued…" : "Finding candidate images…"}
+      {classificationProgressText(run, starting)}
     </div>}
     {currentFailure && <div className="igd-alert igd-error"><AlertTriangle size={17} />Classification failed. Press Run to try again.</div>}
     {!working && run?.status === "completed" && run.error && <div className="igd-alert igd-warning"><AlertTriangle size={17} />Classification completed with a warning: {run.error}</div>}
@@ -229,8 +226,8 @@ export function DeleteImageGridsPage() {
       <button disabled={!settings.showResults} className={view === "non-grids" ? "igd-kpi-active" : ""} onClick={() => changeView("non-grids")}><strong>{run.nonGridCount || 0}</strong><span>non-grids</span></button>
       <button disabled={!settings.showResults} className={view === "classified" ? "igd-kpi-active" : ""} onClick={() => changeView("classified")}><strong>{run.classifiedCount || 0}</strong><span>classified</span></button>
       <div><strong>{run.skippedCount || 0}</strong><span>skipped</span></div>
-      <div><strong>{run.candidateCount || 0}</strong><span>candidates</span></div>
-      {active && <div className="igd-progress"><span style={{ width: `${progress}%` }} /></div>}
+      <div><strong>{run.processedCount || 0}</strong><span>processed</span></div>
+      {active && <div className="igd-progress igd-progress-indeterminate" aria-label="Classification in progress"><span /></div>}
     </section>}
 
     {deleting && <div className="igd-alert igd-working"><Loader2 className="igd-spin" size={17} />

@@ -1,6 +1,12 @@
 export const PAGE_SIZE = 200;
 export const DEFAULT_SETTINGS = Object.freeze({ folderMode: "all", paths: [], publishMetadata: true, showResults: false });
 
+export function classificationProgressText(run, starting = false) {
+  if (starting) return "Starting classification…";
+  if (run?.status === "queued") return "Classification queued…";
+  return `Classifying… ${run?.processedCount || 0} images processed; ${run?.gridCount || 0} grids found; ${run?.skippedCount || 0} skipped`;
+}
+
 export function normalizeSettings(value = {}) {
   value ??= {};
   let folderMode = ["include", "exclude"].includes(value.folderMode) ? value.folderMode : "all";

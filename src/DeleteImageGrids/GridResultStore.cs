@@ -49,7 +49,7 @@ public sealed class GridResultStore : IDisposable
         => await ExecuteAsync("UPDATE runs SET job_id=$value WHERE id=$id", runId, jobId, ct);
 
     public async Task MarkRunningAsync(string runId, CancellationToken ct)
-        => await ExecuteAsync("UPDATE runs SET status='running', error=NULL WHERE id=$id", runId, null, ct);
+        => await ExecuteAsync("UPDATE runs SET status='running', candidate_count=-1, error=NULL WHERE id=$id", runId, null, ct);
 
     public async Task SetCandidateCountAsync(string runId, int count, CancellationToken ct)
         => await ExecuteNumberAsync("UPDATE runs SET candidate_count=$value WHERE id=$id", runId, count, ct);
@@ -148,7 +148,7 @@ public sealed class GridResultStore : IDisposable
     {
         await using var connection = await OpenAsync(ct);
         await using var command = connection.CreateCommand();
-        command.CommandText = "UPDATE runs SET status=$status,error=$error,completed_at=$completed WHERE id=$id";
+        command.CommandText = "UPDATE runs SET status=$status,error=$error,completed_at=$completed, candidate_count=CASE WHEN $status='completed' AND candidate_count<0 THEN processed_count ELSE candidate_count END WHERE id=$id";
         command.Parameters.AddWithValue("$id", runId);
         command.Parameters.AddWithValue("$status", status);
         command.Parameters.AddWithValue("$error", (object?)error ?? DBNull.Value);
@@ -548,5 +548,6 @@ public sealed record GridRunRecord(
     int CandidateCount, int ProcessedCount, int GridCount, int NonGridCount, int SkippedCount,
     int MetadataPublishedCount, string? Error, int LastImageId, DateTimeOffset CreatedAt, DateTimeOffset? CompletedAt)
 {
-    public bool Resumable => Status is "cancelled" or "interrupted" or "failed" && ProcessedCount < CandidateCount;
+    public bool Resumable => Status is "cancelled" or "interrupted" or "failed"
+        && (CandidateCount < 0 || ProcessedCount < CandidateCount);
 }

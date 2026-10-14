@@ -23,6 +23,9 @@
 .igd-status strong { font-size: 1rem; }.igd-status span { color: var(--igd-muted); font-size: .67rem; }
 .igd-progress { position: absolute; height: 3px; left: 0; right: 0; bottom: 0; overflow: hidden; border-radius: 2px; background: var(--igd-border); }
 .igd-progress span { display: block; height: 100%; background: #3b82f6; transition: width .25s; }
+.igd-progress-indeterminate span { width: 30%; animation: igd-progress-slide 1.5s linear infinite; }
+@keyframes igd-progress-slide { from { transform: translateX(-100%); } to { transform: translateX(334%); } }
+@media (prefers-reduced-motion: reduce) { .igd-progress-indeterminate span { animation: none; } }
 .igd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: .45rem; }
 .igd-results-hidden { margin: .8rem 0; padding: 1rem; border: 1px dashed var(--igd-border); border-radius: 7px; color: var(--igd-muted); text-align: center; font-size: .75rem; }
 .igd-grid.igd-page-loading { opacity: .55; pointer-events: none; transition: opacity .15s; }

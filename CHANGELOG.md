@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.20
+
+- Start classification after the first candidate batch, removing the preliminary library-wide counting pass.
+- Show live processed, grid, and skipped counts with an activity indicator instead of an unknown-total percentage.
+- Preserve cancellation/resume behavior for runs whose total is unknown, and finalize totals when classification finishes.
+
 ## 0.2.19
 
 - Set the minimum Cove version to the development build used to compile the extension, allowing 1.5.2-dev.167-segments.1, later compatible development builds, and stable 1.5.2 to install.
