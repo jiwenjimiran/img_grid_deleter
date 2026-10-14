@@ -129,10 +129,12 @@ test("classification excludes images already tagged as grid or not grid", async 
   const coordinator = await readFile(new URL("../../src/DeleteImageGrids/GridRunCoordinator.cs", import.meta.url), "utf8");
   assert.match(coordinator, /GridMetadataPublisher\.GridTagName/);
   assert.match(coordinator, /GridMetadataPublisher\.NonGridTagName/);
-  assert.match(coordinator, /imageIds\.Contains\(link\.ImageId\) && classificationTagIds\.Contains\(link\.TagId\)/);
-  assert.match(coordinator, /imageIds\.RemoveAll\(classified\.Contains\)/);
+  assert.match(coordinator, /db\.Images\.AsNoTracking\(\)/);
+  assert.match(coordinator, /!image\.TagIds\.Any\(tagId => classificationTagIds\.Contains\(tagId\)\)/);
+  assert.match(coordinator, /scopedFiles\.Any\(file => file\.ImageId == image\.Id\)/);
   assert.doesNotMatch(coordinator, /\.CountAsync\(|!classifiedImageIds\.Contains|IgnoreQueryFilters/);
-  assert.ok(coordinator.indexOf("afterImageId = imageIds[^1]") < coordinator.indexOf("imageIds.RemoveAll"));
+  assert.doesNotMatch(coordinator, /db\.Set<ImageTag>|imageIds\.RemoveAll/);
+  assert.ok(coordinator.indexOf("!image.TagIds.Any") < coordinator.indexOf(".Take(CandidateBatchSize)"));
   assert.equal((coordinator.match(/await foreach \(var .* in ReadCandidateBatchesAsync/g) || []).length, 1);
   assert.doesNotMatch(coordinator, /remainingCount|Counting unclassified|SetCandidateCountAsync/);
 });

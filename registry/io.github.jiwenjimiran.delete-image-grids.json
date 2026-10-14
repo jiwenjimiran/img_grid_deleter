@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.20",
-      "changelog": "Start classification after the first candidate batch and show live counts without a preliminary library counting pass; preserve resume with unknown totals.",
+      "version": "0.2.21",
+      "changelog": "Query image records directly and exclude classified images before pagination using Cove tag arrays; remove file deduplication and per-page tag queries.",
       "minCoveVersion": "1.5.2-dev.167-segments.1",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.20/io.github.jiwenjimiran.delete-image-grids-0.2.20.zip"
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.21/io.github.jiwenjimiran.delete-image-grids-0.2.21.zip"
     }
   ]
 }

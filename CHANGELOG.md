@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.21
+
+- Retrieve candidate IDs directly from Cove image records, using stored tag arrays to exclude classified images before pagination.
+- Remove file-table deduplication and separate per-page tag queries from candidate discovery.
+- Only query files for candidate discovery when Include/Exclude paths require it; retain authorized image queries, scope-safe file loading, and resumable ID cursors.
+
 ## 0.2.20
 
 - Start classification after the first candidate batch, removing the preliminary library-wide counting pass.

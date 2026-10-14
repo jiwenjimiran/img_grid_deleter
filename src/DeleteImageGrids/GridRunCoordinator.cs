@@ -112,7 +112,6 @@ public sealed class GridRunCoordinator(
             await store.MarkRunningAsync(run.Id, ct);
             await using var scope = scopeFactory.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<CoveContext>();
-            var scopedFiles = ApplyScope(db.ImageFiles.AsNoTracking().Where(file => file.ImageId != null), run.Settings);
             var classificationTagIds = await db.Tags.AsNoTracking()
                 .Where(tag => tag.Name == GridMetadataPublisher.GridTagName
                     || tag.Name == GridMetadataPublisher.NonGridTagName)
@@ -135,7 +134,7 @@ public sealed class GridRunCoordinator(
                 }
             }
 
-            await foreach (var imageIds in ReadCandidateBatchesAsync(db, scopedFiles, classificationTagIds, lastImageId, ct))
+            await foreach (var imageIds in ReadCandidateBatchesAsync(db, run.Settings, classificationTagIds, lastImageId, ct))
             {
                 ct.ThrowIfCancellationRequested();
                 var allFiles = await db.ImageFiles.AsNoTracking()
@@ -202,28 +201,28 @@ public sealed class GridRunCoordinator(
         }
     }
 
-    // Page first, then evaluate authorization-filtered tags only for that bounded set.
-    // A library-wide NOT IN makes the host's per-image/tag permission checks expensive.
+    // Query the same image records and denormalized tag arrays used by Cove lists.
+    // Exclude classified images BEFORE pagination so old results do not consume pages.
     internal static async IAsyncEnumerable<List<int>> ReadCandidateBatchesAsync(
-        CoveContext db, IQueryable<ImageFile> scopedFiles, int[] classificationTagIds, int afterImageId,
+        CoveContext db, GridSettings settings, int[] classificationTagIds, int afterImageId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
     {
+        var candidates = db.Images.AsNoTracking().Where(image => image.FileCount > 0);
+        if (classificationTagIds.Length > 0)
+            candidates = candidates.Where(image => !image.TagIds.Any(tagId => classificationTagIds.Contains(tagId)));
+        if (settings.FolderMode != "all" && settings.Paths is { Count: > 0 })
+        {
+            var scopedFiles = ApplyScope(db.ImageFiles.AsNoTracking(), settings);
+            candidates = candidates.Where(image => scopedFiles.Any(file => file.ImageId == image.Id));
+        }
         while (true)
         {
-            var imageIds = await scopedFiles.Where(file => file.ImageId > afterImageId)
-                .Select(file => file.ImageId!.Value).Distinct().OrderBy(id => id)
+            var imageIds = await candidates.Where(image => image.Id > afterImageId)
+                .OrderBy(image => image.Id).Select(image => image.Id)
                 .Take(CandidateBatchSize).ToListAsync(ct);
             if (imageIds.Count == 0) yield break;
             afterImageId = imageIds[^1];
-            if (classificationTagIds.Length > 0)
-            {
-                var classified = (await db.Set<ImageTag>().AsNoTracking()
-                    .Where(link => imageIds.Contains(link.ImageId) && classificationTagIds.Contains(link.TagId))
-                    .Select(link => link.ImageId).Distinct().ToListAsync(ct)).ToHashSet();
-                imageIds.RemoveAll(classified.Contains);
-            }
-            // An entirely classified page must still advance the cursor.
-            if (imageIds.Count > 0) yield return imageIds;
+            yield return imageIds;
         }
     }
 

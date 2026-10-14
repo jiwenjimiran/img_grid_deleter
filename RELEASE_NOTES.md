@@ -1,4 +1,4 @@
-# Delete Image Grids 0.2.20
+# Delete Image Grids 0.2.21
 
 Classify likely image grids with a bundled model, review results, and delete
 selected images through Cove. Include and Exclude folder scopes protect files
@@ -17,7 +17,12 @@ Classification now starts after the first candidate batch without a preliminary
 library-wide counting pass. The page shows live processed, grid, and skipped
 counts with an activity indicator. Unknown-total runs remain resumable after
 cancellation, interruption, or failure; completed runs save the final total.
-Authorization-filtered image/tag queries remain bounded to 128 image IDs.
+Candidate discovery now queries image records directly and excludes classification
+tags through Cove's denormalized tag arrays before pagination. This eliminates
+file-table deduplication and walking batches of already-classified images.
+All-folder runs avoid file-table queries until loading a candidate batch's files;
+Include/Exclude runs retain exact file-path scope checks. Cove's image authorization
+filters remain enabled. Batches stay bounded to 128 image IDs.
 Requires Cove 1.5.2-dev.167-segments.1 or newer, including stable 1.5.2.
 
 Validation: frontend tests, C# regression checks, Python training policy and
