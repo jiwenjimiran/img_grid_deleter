@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.24
+
+- Retry PNG checksum failures with tolerant PNG decoding.
+- Decode rejected JPEG and other image sources directly through FFmpeg before trying Cove thumbnails, bypassing failed thumbnail caches. Recovery has cancellation and a 30-second timeout; original files remain untouched.
+
 ## 0.2.23
 
 - Retry unsupported or damaged image decodes through Cove's thumbnail pipeline, which supports FFmpeg recovery, before skipping classification.

@@ -156,6 +156,38 @@ if (File.Exists(modelPath))
     var confidence = await classifier.ClassifyGridConfidenceAsync(stream, CancellationToken.None);
     Check(float.IsFinite(confidence) && confidence is >= 0 and <= 1, "ONNX runtime smoke inference returns a probability");
 
+    var damagedPng = stream.ToArray();
+    for (var offset = 8; offset < damagedPng.Length;)
+    {
+        var length = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(damagedPng.AsSpan(offset, 4));
+        if (System.Text.Encoding.ASCII.GetString(damagedPng, offset + 4, 4) == "IDAT")
+        {
+            damagedPng[offset + 8 + length] ^= 1;
+            break;
+        }
+        offset += length + 12;
+    }
+    using var damagedStream = new MemoryStream(damagedPng);
+    var strictRejected = false;
+    try { using var strictImage = await Image.LoadAsync<Rgb24>(damagedStream); }
+    catch (InvalidImageContentException) { strictRejected = true; }
+    Check(strictRejected, "PNG fixture reproduces strict CRC rejection");
+    damagedStream.Position = 0;
+    using var recoveredPng = await ImageGridClassifier.LoadImageAsync(damagedStream, CancellationToken.None);
+    Check(recoveredPng.Width == image.Width && recoveredPng[10, 10].Equals(image[10, 10]),
+        "CRC recovery preserves decoded pixels");
+
+    using var jpegStream = new MemoryStream();
+    await image.SaveAsJpegAsync(jpegStream);
+    using var ffmpegImage = await ImageDecodeRecovery.DecodeAsync(jpegStream, null, CancellationToken.None);
+    using var decodedJpeg = await Image.LoadAsync<Rgb24>(ffmpegImage);
+    Check(decodedJpeg.Width == 640 && decodedJpeg.Height == 640, "direct FFmpeg recovery handles JPEG sources independently of thumbnail cache");
+    using var invalidStream = new MemoryStream(new byte[] { 1, 2, 3, 4 });
+    var invalidRejected = false;
+    try { using var invalidImage = await ImageDecodeRecovery.DecodeAsync(invalidStream, null, CancellationToken.None); }
+    catch (InvalidDataException) { invalidRejected = true; }
+    Check(invalidRejected, "unrecoverable input remains a failure rather than a classification");
+
     var letterboxDirectory = Path.Combine(Path.GetTempPath(), $"igd-letterbox-{Guid.NewGuid():N}");
     Directory.CreateDirectory(letterboxDirectory);
     try

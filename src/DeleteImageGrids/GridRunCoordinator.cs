@@ -166,11 +166,24 @@ public sealed class GridRunCoordinator(
                         catch (Exception decodeError) when (decodeError is SixLabors.ImageSharp.UnknownImageFormatException
                             or SixLabors.ImageSharp.InvalidImageContentException)
                         {
-                            await using var recovered = await CoveHostImageServices.OpenThumbnailAsync(scope.ServiceProvider, imageId, ct);
-                            if (recovered is null) throw;
-                            confidence = await classifier.ClassifyGridConfidenceAsync(recovered, ct);
+                            try
+                            {
+                                var config = scope.ServiceProvider.GetService<CoveConfiguration>();
+                                await using var recovered = await ImageDecodeRecovery.DecodeAsync(source, config?.FfmpegPath, ct);
+                                confidence = await classifier.ClassifyGridConfidenceAsync(recovered, ct);
+                            }
+                            catch (OperationCanceledException) { throw; }
+                            catch (Exception recoveryError)
+                            {
+                                logger.LogInformation(recoveryError,
+                                    "[Delete Image Grids] Direct FFmpeg recovery failed for image {ImageId}; trying Cove thumbnail", imageId);
+                                await using var thumbnail = await CoveHostImageServices.OpenThumbnailAsync(scope.ServiceProvider, imageId, ct);
+                                if (thumbnail is null)
+                                    throw new InvalidDataException($"{decodeError.Message} Recovery: {recoveryError.Message}", recoveryError);
+                                confidence = await classifier.ClassifyGridConfidenceAsync(thumbnail, ct);
+                            }
                             logger.LogInformation(
-                                "[Delete Image Grids] Recovered image {ImageId} in run {RunId} through Cove's thumbnail decoder. Source: {ImagePath}",
+                                "[Delete Image Grids] Recovered image {ImageId} in run {RunId} through fallback decoding. Source: {ImagePath}",
                                 imageId, run.Id, representative.Path);
                         }
                         var match = new GridMatch(imageId, representative.Path, confidence, confidence >= .5f,

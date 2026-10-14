@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.23",
-      "changelog": "Recover unsupported or damaged image decodes through Cove's thumbnail/FFmpeg pipeline before skipping, with recovery and failure logs.",
+      "version": "0.2.24",
+      "changelog": "Recover PNG checksum failures and retry rejected JPEG/other image sources directly through FFmpeg before Cove thumbnails.",
       "minCoveVersion": "1.5.2-dev.167-segments.1",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.23/io.github.jiwenjimiran.delete-image-grids-0.2.23.zip"
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.24/io.github.jiwenjimiran.delete-image-grids-0.2.24.zip"
     }
   ]
 }

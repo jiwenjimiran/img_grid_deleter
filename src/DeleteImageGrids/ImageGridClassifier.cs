@@ -3,6 +3,7 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace Cove.DeleteImageGrids;
 
@@ -34,7 +35,7 @@ public sealed class ImageGridClassifier : IDisposable
 
     public async Task<float> ClassifyGridConfidenceAsync(Stream source, CancellationToken ct)
     {
-        using var image = await Image.LoadAsync<Rgb24>(source, ct);
+        using var image = await LoadImageAsync(source, ct);
         string preprocessing;
         lock (_sessionGate) preprocessing = _activePreprocessing;
         if (preprocessing == LetterboxImageNet)
@@ -90,6 +91,24 @@ public sealed class ImageGridClassifier : IDisposable
         var grid = Math.Exp(logits[0] - max);
         var notGrid = Math.Exp(logits[1] - max);
         return (float)(grid / (grid + notGrid));
+    }
+
+    internal static async Task<Image<Rgb24>> LoadImageAsync(Stream source, CancellationToken ct)
+    {
+        var start = source.CanSeek ? source.Position : 0;
+        try { return await Image.LoadAsync<Rgb24>(source, ct); }
+        catch (InvalidImageContentException) when (source.CanSeek)
+        {
+            source.Position = start;
+            var signature = new byte[8];
+            var count = await source.ReadAsync(signature, ct);
+            source.Position = start;
+            if (count != 8 || !signature.AsSpan().SequenceEqual(new byte[] {137, 80, 78, 71, 13, 10, 26, 10})) throw;
+            return await PngDecoder.Instance.DecodeAsync<Rgb24>(new PngDecoderOptions
+            {
+                PngCrcChunkHandling = PngCrcChunkHandling.IgnoreAll
+            }, source, ct);
+        }
     }
 
     public void Reload(string modelPath, string? modelVersion = null)

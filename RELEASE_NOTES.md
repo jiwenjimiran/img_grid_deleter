@@ -1,4 +1,9 @@
-# Delete Image Grids 0.2.23
+# Delete Image Grids 0.2.24
+
+PNG checksum failures now retry with tolerant PNG decoding. Unsupported JPEG
+and other image sources retry directly through FFmpeg before Cove thumbnails,
+bypassing failed thumbnail caches. Recovery times out after 30 seconds and
+honors cancellation. Source files remain untouched; unreadable data still skips.
 
 When ImageSharp rejects an unsupported or damaged image, classification now
 retries through Cove's thumbnail pipeline, including its FFmpeg recovery path.
