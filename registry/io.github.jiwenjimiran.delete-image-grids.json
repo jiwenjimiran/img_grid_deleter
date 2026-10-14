@@ -1,0 +1,19 @@
+{
+  "id": "io.github.jiwenjimiran.delete-image-grids",
+  "sourceManifestUrl": "https://raw.githubusercontent.com/jiwenjimiran/img_grid_deleter/main/src/DeleteImageGrids/extension.json",
+  "name": "Delete Image Grids",
+  "description": "Classify image grids with a bundled vision model, review them, and safely delete them from Cove.",
+  "author": "jiwenji",
+  "repositoryUrl": "https://github.com/jiwenjimiran/img_grid_deleter",
+  "categories": ["ai", "tools", "library", "content-management", "ui"],
+  "dependencies": {},
+  "screenshots": [],
+  "versions": [
+    {
+      "version": "0.2.18",
+      "changelog": "Batch classification-tag checks to avoid library-wide authorization query timeouts; provide standard and developer editions with local training source.",
+      "minCoveVersion": "1.5.2",
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.18/io.github.jiwenjimiran.delete-image-grids-0.2.18.zip"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Cove.DeleteImageGrids</AssemblyName>
+    <RootNamespace>Cove.DeleteImageGrids</RootNamespace>
+    <Version Condition="'$(ExtensionVersion)' != ''">$(ExtensionVersion)</Version>
+    <InformationalVersion Condition="'$(ExtensionVersion)' != ''">$(ExtensionVersion)</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(DeveloperEdition)' == 'true'">
+    <DefineConstants>$(DefineConstants);DELETE_IMAGE_GRIDS_DEV</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.22.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" ExcludeAssets="runtime" />
+    <None Include="extension.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+    <None Include="dist\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+    <None Include="model\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+    <None Include="..\..\scripts\export-model.py" Link="dev-tools\export-model.py"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always"
+          Condition="'$(DeveloperEdition)' == 'true'" />
+    <None Include="..\..\scripts\apply-update.ps1" Link="dev-tools\apply-update.ps1"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always"
+          Condition="'$(DeveloperEdition)' == 'true'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CoveHostAssemblyDir)' != ''">
+    <Reference Include="Cove.Plugins"><HintPath>$(CoveHostAssemblyDir)\Cove.Plugins.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Cove.Sdk"><HintPath>$(CoveHostAssemblyDir)\Cove.Sdk.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Cove.Core"><HintPath>$(CoveHostAssemblyDir)\Cove.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Cove.Data"><HintPath>$(CoveHostAssemblyDir)\Cove.Data.dll</HintPath><Private>false</Private></Reference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.12" ExcludeAssets="runtime" />
+    <PackageReference Include="Npgsql" Version="10.0.3" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalCovePlugins)' == 'false' and '$(CoveHostAssemblyDir)' == ''">
+    <PackageReference Include="Cove.Plugins" Version="$(CovePluginsVersion)"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalCovePlugins)' == 'true' and '$(CoveHostAssemblyDir)' == ''">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Plugins\Cove.Plugins.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Sdk\Cove.Sdk.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Core\Cove.Core.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Data\Cove.Data.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+  </ItemGroup>
+</Project>

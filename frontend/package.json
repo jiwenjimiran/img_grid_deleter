@@ -1,0 +1,13 @@
+{
+  "name": "cove-delete-image-grids-ui",
+  "private": true,
+  "version": "0.2.18",
+  "type": "module",
+  "scripts": {
+    "build": "npm test && node build.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.8"
+  }
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\DeleteImageGrids\Contracts.cs" Link="Contracts.cs" />
+    <Compile Include="..\..\src\DeleteImageGrids\ImageGridClassifier.cs" Link="ImageGridClassifier.cs" />
+    <Compile Include="..\..\src\DeleteImageGrids\TrainingOutputParser.cs" Link="TrainingOutputParser.cs" />
+    <Compile Include="..\..\src\DeleteImageGrids\TrainingDatasetDeduplication.cs" Link="TrainingDatasetDeduplication.cs" />
+    <Compile Include="..\..\src\DeleteImageGrids\ModelQuality.cs" Link="ModelQuality.cs" />
+    <Compile Include="..\..\src\DeleteImageGrids\GridResultStore.cs" Link="GridResultStore.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.22.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+  </ItemGroup>
+</Project>
