@@ -1,7 +1,7 @@
 {
   "id": "io.github.jiwenjimiran.delete-image-grids",
   "name": "Delete Image Grids",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "Classify image grids with a bundled vision model, review them, and safely delete them from Cove.",
   "author": "jiwenji",
   "categories": [
@@ -11,7 +11,7 @@
     "content-management",
     "ui"
   ],
-  "minCoveVersion": "1.5.2",
+  "minCoveVersion": "1.5.2-dev.167-segments.1",
   "entryDll": "Cove.DeleteImageGrids.dll",
   "jsBundle": "dist/bundle.js",
   "cssBundle": "dist/bundle.css",

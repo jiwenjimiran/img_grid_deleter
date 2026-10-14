@@ -10,10 +10,10 @@
   "screenshots": [],
   "versions": [
     {
-      "version": "0.2.18",
-      "changelog": "Batch classification-tag checks to avoid library-wide authorization query timeouts; provide standard and developer editions with local training source.",
-      "minCoveVersion": "1.5.2",
-      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.18/io.github.jiwenjimiran.delete-image-grids-0.2.18.zip"
+      "version": "0.2.19",
+      "changelog": "Allow the Cove 1.5.2 development build used for compilation; batch classification-tag checks to avoid startup query timeouts.",
+      "minCoveVersion": "1.5.2-dev.167-segments.1",
+      "downloadUrl": "https://github.com/jiwenjimiran/img_grid_deleter/releases/download/v0.2.19/io.github.jiwenjimiran.delete-image-grids-0.2.19.zip"
     }
   ]
 }

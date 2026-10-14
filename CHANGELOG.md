@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.19
+
+- Set the minimum Cove version to the development build used to compile the extension, allowing 1.5.2-dev.167-segments.1, later compatible development builds, and stable 1.5.2 to install.
+
 ## 0.2.18
 
 - Replace library-wide classification-tag exclusion with bounded image and tag queries for counting and inference, retaining Cove authorization filters.

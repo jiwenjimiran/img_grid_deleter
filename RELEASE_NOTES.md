@@ -1,4 +1,4 @@
-# Delete Image Grids 0.2.18
+# Delete Image Grids 0.2.19
 
 Classify likely image grids with a bundled model, review results, and delete
 selected images through Cove. Include and Exclude folder scopes protect files
@@ -15,7 +15,9 @@ source repository. Contributors provide their own labelled datasets.
 
 This version replaces a library-wide classification-tag exclusion query with
 bounded image/tag queries to address the 30-second startup database timeout.
-Requires Cove 1.5.2 or newer.
+Requires Cove 1.5.2-dev.167-segments.1 or newer, including stable 1.5.2.
+Fixes the installer rejecting the supported development host as older than
+stable 1.5.2.
 
 Validation: frontend tests, C# regression checks, Python training policy and
 preprocessing tests, both edition builds, and ZIP content checks passed.
